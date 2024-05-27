@@ -1,20 +1,20 @@
 package com.javarush.telegrambot;
 
 import org.telegram.telegrambots.meta.TelegramBotsApi;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
-import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.Map;
+import java.util.Properties;
 
 import static com.javarush.telegrambot.TelegramBotContent.*;
 
 public class MyFirstTelegramBot extends MultiSessionTelegramBot {
-    public static final String NAME = "javarush_demo_mentor_02_bot"; // TODO: добавьте имя бота в кавычках
-    public static final String TOKEN = "555"; //TODO: добавьте токен бота в кавычках
+    public static final String NAME;
+    public static final String TOKEN;
     public static final String START = "/start";
     public static final String BUTTON_STEP_1 = "step1_Button";
     public static final String BUTTON_STEP_2 = "step2_Button";
@@ -47,6 +47,18 @@ public class MyFirstTelegramBot extends MultiSessionTelegramBot {
     public static final String BUTTON_NAME_13 = "Computer hacking";
     public static final String BUTTON_NAME_14 = "Go outside";
 
+    static{
+        FileInputStream inputStream;
+        Properties properties = new Properties();
+        try{
+            inputStream = new FileInputStream("src/main/config.properties");
+            properties.load(inputStream);
+            NAME = properties.getProperty("bot.name");
+            TOKEN = properties.getProperty("bot.token");
+        } catch (IOException exception) {
+            throw new RuntimeException(exception);
+        }
+    }
 
     public MyFirstTelegramBot() {
         super(NAME, TOKEN);
@@ -74,14 +86,14 @@ public class MyFirstTelegramBot extends MultiSessionTelegramBot {
 
         getNewStep(BUTTON_STEP_7, 50, PICTURE_8, STEP_8_TEXT, BUTTON_NAME_14, BUTTON_STEP_8);
 
-        if (getCallbackQueryButtonKey().equals("step8_Button")) {
+        if (getCallbackQueryButtonKey().equals(BUTTON_STEP_8)) {
             addUserGlory(50);
             sendPhotoMessageAsync("final_pic");
             sendTextMessageAsync(FINAL_TEXT);
         }
 
         if (getMessageText().equals("/glory")) {
-            sendTextMessageAsync("Glory amount: " + String.valueOf(getUserGlory()));
+            sendTextMessageAsync("Glory amount: " + getUserGlory());
         }
     }
 
